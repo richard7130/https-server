@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>RESTful</title>
+		<script type="text/javascript" src="http://cdn.bootcss.com/jquery/1.11.2/jquery.js"></script>
+		<style type="text/css">
+			html,body{height:100%;margin:0;padding:0;font-family: Microsoft YaHei;}
+			#container{min-height:100%;height:auto !important;height:100%;}
+			
+			#header{height:70px;font-size:28px;line-height:70px;color:#FFF;background:#a41e22;}
+			.header_c{margin:0 auto;width:960px;}
+			.header_c_l{float:left;}
+			.header_c_r{float:right;font-size:14px;}
+			
+			#content{margin:0 auto;width:960px;padding-top:5px;min-height:100%;height:auto;}
+			.unit{padding:10px 0px 10px 0px;}
+			.unit_bottom{border-bottom:1px solid #ddd;}
+			.unit_tag{color:#666;cursor:pointer;padding-right:10px;font-size:18px;}
+			.unit_tag:hover{text-decoration:underline;color:#333;}
+			.unit_desc{color:#aaa;vertical-align:bottom;font-size:14px;}
+			
+			.unit_ws_list{padding-top:5px;display:none;}
+			.unit_ws_list_item{border:1px solid #ddd;margin:10px 0px 10px 0px;line-height:32px;min-height:32px;}
+			.unit_ws_list_item span{width:40px;text-align:center;background:#ddd;line-height:32px;height:32px;display:block;width:66px;float:left;font-size:14px;}
+			.unit_ws_list_item em{margin-left:15px;font-size:14px;}
+			.unit_ws_list_item font{display:block;float:right;color:#666;font-size:14px;margin-right:10px;}
+			
+			.unit_ws_list_item_c{display:none;border-top:1px solid #ddd;padding-left:12px;font-size:14px;color:#666;background:#f5e8e8;padding-bottom:12px;}
+			.unit_ws_list_item_c th{text-align:left;font-weight:normal;border-bottom:1px solid #DDD;}
+			
+			.post{background:#a41e22 !important;color:#FFF;}
+			.get{background:#0f6ab4 !important;color:#FFF;}
+			.func1{cursor:pointer;}
+			.func1:hover{text-decoration:underline;}
+			.footer_c{margin:0 auto;width:960px;text-align:right;color:#a41e22;font-size:12px;}
+		</style>
+		<script type="text/javascript">
+			function smartOffOn(unit_ws_list_id){
+				if($(unit_ws_list_id).css('display') == 'block'){
+					$(unit_ws_list_id).slideUp('fast');
+				}else{
+					$(".unit_ws_list").slideUp('fast');
+					$(unit_ws_list_id).slideDown('fast');
+				}
+				setTimeout(bodyResize, 200);
+			}
+			
+			function bodyResize(){
+				var contentHeight = $("#header").height() + $("#content").height() + $("#footer").height();
+				if(contentHeight > $(document.body).height()){
+					$("#footer").attr({style:''});
+				}else{
+					$("#footer").attr({style:'position:relative;margin-top:-40px;height:40px;'});
+				}
+			}
+			
+			$(function() {
+				$.getJSON("doc/json",
+					function(data){
+						$("#content").empty();
+						var html = '';
+						for(var i=0; i<data.length; i++){
+							var item = data[i];
+							html += i+1==data.length ? '<div class="unit">' : '<div class="unit unit_bottom">';
+							html += '<div><span class="unit_tag" onclick="smartOffOn(\'#unit_ws_list_id_' + (i + 1) + '\');">' + item.tagName + '</span><span class="unit_desc">' + item.tagDesc + '</span></div>';
+							html += '<div id="unit_ws_list_id_' + (i + 1) + '" class="unit_ws_list">';
+							for(var j=0; j<item.beans.length; j++){
+								var bean = item.beans[j];
+								html +='<div class="unit_ws_list_item">';
+								html +='<span class="' + bean.method + ' func1">' + bean.method.toUpperCase() + '</span>';
+								html +='<em class="func1">' + bean.path + '</em>';
+								html += '<font class="func1">' + bean.pathDesc+ '</font>';
+								html += '<div class="unit_ws_list_item_c">参数列表';
+								html += '<table style="width:100%;padding-right:15px;" cellspacing="0" cellpadding="0">';
+								html += '<tr><th width="220px">名称</th><th width="180px">类型</th><th width="150px">是否必须</th><th>描述</th></tr>';
+								for(var k=0; k<bean.parameters.length; k++){
+									var param = bean.parameters[k];
+									html += "<tr><td>" + param.paramName + "</td><td>" + param.paramType + "</td><td>" + param.required + "</td><td>" + param.paramDesc + "</td></tr>";
+								}
+								html += '</table>';
+								html += '</div>';
+								html += '</div>';
+							}
+							html += '</div>';
+							html += "</div>";
+						}
+					
+						$("#content").append(html);
+						
+						$(".func1").click(function(){
+							$(this).siblings("div").toggle("fast");
+							setTimeout(bodyResize, 200);
+						});
+					});
+				
+				$("#footer").attr({style:'position:relative;margin-top:-40px;height:40px;'});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="container">
+			<div id="header">
+				<div class="header_c">
+					<div class="header_c_l" >RESTful</div>
+				</div>
+			</div>
+			<div id="content"></div>
+		</div>
+		<div id="footer">
+			<div class="footer_c">
+				http://www.four-faith.com
+			</div>
+		</div>
+	</body>
+</html>
