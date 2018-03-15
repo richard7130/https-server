@@ -44,19 +44,21 @@ public class PostMethodParameterWrapper implements IHttpParameterWrapper {
 	@Override
 	public Map<String, String> wrap(FullHttpRequest request) {
 		Map<String, String> parameters = new HashMap<String, String>();
-		HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), request);
-		List<InterfaceHttpData> datas = decoder.getBodyHttpDatas();
-		try {
-			if (datas != null && datas.size() > 0) {
-				for (InterfaceHttpData postData : datas) {
-					if (postData.getHttpDataType() == HttpDataType.Attribute) {
-						Attribute attribute = (Attribute) postData;
-						parameters.put(attribute.getName(), attribute.getValue());
+		if(request.content().readableBytes() > 0) {
+			HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(false), request);
+			List<InterfaceHttpData> datas = decoder.getBodyHttpDatas();
+			try {
+				if (datas != null && datas.size() > 0) {
+					for (InterfaceHttpData postData : datas) {
+						if (postData.getHttpDataType() == HttpDataType.Attribute) {
+							Attribute attribute = (Attribute) postData;
+							parameters.put(attribute.getName(), attribute.getValue());
+						}
 					}
 				}
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
 			}
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
 		}
 		return parameters;
 	}
